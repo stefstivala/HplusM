@@ -1,0 +1,281 @@
+/**
+ * SQUARESPACE CUSTOM CSS - HEWLETT & MURRAY
+ * Formatted with CSS Variables for easy maintenance
+ * Last updated: December 2025
+ */
+
+/* ============================================================================
+   CSS VARIABLES - Edit here to change site-wide colors and timings
+   ============================================================================ */
+
+:root {
+  /* Colors */
+  --color-brand-beige: #E3DFC3;
+  --color-accent-purple: #6b5b95;
+  --color-divider-tan: #DACFA2;
+  --color-text-black: #000;
+  --color-text-dark-gray: #333;
+
+  /* Animations */
+  --animation-fade-duration: 2s;
+  --animation-fade-timing: ease-out;
+  --animation-grid-delay: 1s;
+  --animation-hover-duration: 0.3s;
+  --animation-scale-amount: 1.05;
+
+  /* Grid */
+  --grid-blur-amount: 5px;
+}
+
+/* ============================================================================
+   SECTION 1: HIDE SQUARESPACE DEFAULTS
+   ============================================================================ */
+
+.user-accounts-link {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  color: #fff !important;
+  font-size: 0 !important;
+}
+
+/* ============================================================================
+   SECTION 2: NAVIGATION & HEADER STYLING
+   ============================================================================ */
+
+/* Plus icons before all navigation items */
+.header-nav-item a::before,
+.header-nav-folder-title a::before,
+.header-nav-folder-item a::before,
+.header-nav-folder-title-text::before {
+  content: "+";
+  margin-right: 10px;
+  color: var(--color-brand-beige);
+  font-weight: 700;
+  font-size: 1.5em;
+  position: relative;
+  top: -3px;
+}
+
+/* Site title (home link) - all states */
+#site-title {
+  color: var(--color-text-black) !important;
+  text-decoration: none !important;
+  font-weight: 400 !important;
+}
+
+#site-title:link,
+#site-title:visited,
+#site-title:hover,
+#site-title:active {
+  color: var(--color-text-black) !important;
+  text-decoration: none !important;
+}
+
+/* Site title - same size as navigation font (not responsive) */
+.header-title-text {
+  font-family: "Helvetica Neue";
+  font-size: var(--site-navigation-font-font-size-value);
+}
+
+.header-title-text::before {
+  content: "+";
+  margin-right: 10px;
+  color: var(--color-brand-beige);
+  font-weight: 700;
+}
+
+/* ============================================================================
+   SECTION 3: GRID SYSTEM & LAYOUT
+   ============================================================================ */
+
+/* Main grid container - 4 columns, seamless */
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+  width: 100%;
+  max-width: 100%;
+}
+
+/* Grid items - square aspect ratio */
+.grid-item {
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+}
+
+/* Grid images - fade in with staggered delays */
+.grid-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  opacity: 0;
+  animation: fadeInFromBlack var(--animation-fade-duration) var(--animation-fade-timing) forwards;
+  transition: filter var(--animation-hover-duration) ease, transform var(--animation-hover-duration) ease;
+}
+
+/* Hover blur effect on grid items 2-7 */
+.grid-item:nth-child(2) .grid-image img:hover,
+.grid-item:nth-child(3) .grid-image img:hover,
+.grid-item:nth-child(4) .grid-image img:hover,
+.grid-item:nth-child(5) .grid-image img:hover,
+.grid-item:nth-child(6) .grid-image img:hover,
+.grid-item:nth-child(7) .grid-image img:hover {
+  filter: blur(var(--grid-blur-amount));
+}
+
+/* Staggered animation delays - tile-by-tile (1s apart for half-overlap) */
+.grid-item:nth-child(1) .grid-image img {
+  animation-delay: 0s;
+}
+
+.grid-item:nth-child(2) .grid-image img {
+  animation-delay: 1s;
+}
+
+.grid-item:nth-child(3) .grid-image img {
+  animation-delay: 2s;
+}
+
+.grid-item:nth-child(4) .grid-image img {
+  animation-delay: 3s;
+}
+
+.grid-item:nth-child(5) .grid-image img {
+  animation-delay: 4s;
+}
+
+.grid-item:nth-child(6) .grid-image img {
+  animation-delay: 5s;
+}
+
+.grid-item:nth-child(7) .grid-image img {
+  animation-delay: 6s;
+}
+
+.grid-item:nth-child(8) .grid-image img {
+  animation-delay: 7s;
+}
+
+/* Fade-in animation keyframes */
+@keyframes fadeInFromBlack {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Grid content boxes - cream background with centered content */
+.grid-content {
+  background-color: var(--color-brand-beige);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  box-sizing: border-box;
+}
+
+/* Content box wrapper */
+.content-box {
+  text-align: left;
+  width: 100%;
+}
+
+/* Hide default Squarespace heading */
+.content-box h3 {
+  display: none;
+}
+
+/* ============================================================================
+   SECTION 4: TYPOGRAPHY & TEXT STYLING
+   ============================================================================ */
+
+/* Services list - custom styling */
+.services-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 40px 0;
+}
+
+.services-list li {
+  margin-bottom: 15px;
+  font-size: 18px;
+  line-height: 1.4;
+  color: var(--color-text-dark-gray);
+}
+
+/* Custom plus bullet point */
+.plus {
+  content: "+";
+  margin-right: 8px;
+  color: var(--color-brand-beige);
+  font-weight: 700;
+  font-size: 1.2em;
+}
+
+/* Tagline styling - bold serif with purple accent */
+.tagline {
+  font-size: 20px;
+  color: var(--color-accent-purple);
+  margin: 0;
+  line-height: 1.2;
+  font-family: Merriweather;
+  font-weight: 900;
+  font-style: normal;
+  padding-left: 24px;
+}
+
+/* ============================================================================
+   SECTION 5: SQUARESPACE UTILITY FIXES
+   ============================================================================ */
+
+/* Override horizontal rule color */
+.sqs-block-content hr {
+  background-color: var(--color-divider-tan) !important;
+  border-color: var(--color-divider-tan) !important;
+  height: 1px !important;
+}
+
+/* Button full-width fix */
+.list-item-content__button {
+  width: 100%;
+  display: block;
+}
+
+/* Accordion content alignment fix */
+.accordion-item__description {
+  min-width: 100% !important;
+  max-width: 100% !important;
+  text-align: left !important;
+}
+
+/* ============================================================================
+   SECTION 6: MOBILE RESPONSIVE (768px and below)
+   ============================================================================ */
+
+@media (max-width: 768px) {
+  /* Grid: 4 columns → 2 columns */
+  .grid-container {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  /* Grid content: reduce left padding for mobile */
+  .grid-content {
+    padding: 40px 40px 40px 10px !important;
+  }
+
+  /* Services list: reduce font size for mobile readability */
+  .services-list li {
+    font-size: 11px !important;
+    line-height: 1.1 !important;
+  }
+
+  /* Tagline: reduce font size but keep prominence */
+  .tagline {
+    font-size: 16px !important;
+    line-height: 1.1 !important;
+  }
+}
