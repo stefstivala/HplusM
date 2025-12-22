@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Grid Tool</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #1a1a1a;
+            color: #fff;
+            padding: 40px 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            margin-bottom: 40px;
+            font-size: 2rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        h1 img {
+            height: 120px;
+            width: auto;
+        }
+
+        h1 span {
+            text-align: right;
+        }
+
+        .controls {
+            background: #2a2a2a;
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 40px;
+        }
+
+        .upload-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .upload-box {
+            background: #1a1a1a;
+            border: 2px dashed #555;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .upload-box:hover {
+            border-color: #888;
+            background: #222;
+        }
+
+        .upload-box input[type="file"] {
+            display: none;
+        }
+
+        .upload-box label {
+            cursor: pointer;
+            display: block;
+        }
+
+        .spacing-control {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .spacing-control label {
+            font-weight: 500;
+            min-width: 120px;
+        }
+
+        .spacing-control input[type="range"] {
+            flex: 1;
+            height: 6px;
+            background: #444;
+            border-radius: 3px;
+            outline: none;
+        }
+
+        .spacing-control input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #fff;
+            cursor: pointer;
+            border-radius: 50%;
+        }
+
+        .spacing-control input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: #fff;
+            cursor: pointer;
+            border-radius: 50%;
+            border: none;
+        }
+
+        .spacing-value {
+            min-width: 60px;
+            text-align: right;
+            font-weight: 600;
+        }
+
+        .preview-section {
+            background: #2a2a2a;
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+        }
+
+        .preview-section h2 {
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+        }
+
+        .grid-preview {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--spacing, 20px);
+            max-width: 800px;
+            margin: 0 auto;
+            background: transparent;
+        }
+
+        .grid-slot {
+            aspect-ratio: 1;
+            background: #1a1a1a;
+            border: 2px solid #444;
+            overflow: hidden;
+            position: relative;
+            cursor: move;
+        }
+
+        .grid-slot.active {
+            border-color: #fff;
+            box-shadow: 0 0 0 2px #fff;
+        }
+
+        .grid-slot.drag-over {
+            border-color: #fff;
+            background: #333;
+        }
+
+        .grid-slot img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
+            cursor: grab;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform-origin: center;
+        }
+
+        .grid-slot img.dragging {
+            cursor: grabbing;
+        }
+
+        .grid-slot.empty::after {
+            content: attr(data-position);
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #555;
+            font-size: 3rem;
+            font-weight: 600;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        button {
+            background: #fff;
+            color: #1a1a1a;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        button:hover {
+            background: #eee;
+            transform: translateY(-2px);
+        }
+
+        button:disabled {
+            background: #444;
+            color: #666;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        button.secondary {
+            background: #444;
+            color: #fff;
+        }
+
+        button.secondary:hover {
+            background: #555;
+        }
+
+        .instructions {
+            background: #2a2a2a;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 30px;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .instructions h3 {
+            margin-bottom: 10px;
+        }
+
+        .instructions ul {
+            margin-left: 20px;
+        }
+
+        .instructions li {
+            margin-bottom: 5px;
+        }
+
+        .image-control-group {
+            background: #1a1a1a;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .image-control-group h4 {
+            margin-bottom: 15px;
+            font-size: 1rem;
+            color: #aaa;
+        }
+
+        .control-row {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 12px;
+        }
+
+        .control-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .control-row label {
+            min-width: 80px;
+            font-size: 0.9rem;
+        }
+
+        .control-row input[type="range"] {
+            flex: 1;
+            height: 4px;
+            background: #444;
+            border-radius: 2px;
+            outline: none;
+        }
+
+        .control-row input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            background: #fff;
+            cursor: pointer;
+            border-radius: 50%;
+        }
+
+        .control-row input[type="range"]::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            background: #fff;
+            cursor: pointer;
+            border-radius: 50%;
+            border: none;
+        }
+
+        .control-row .value-display {
+            min-width: 50px;
+            text-align: right;
+            font-size: 0.9rem;
+            color: #aaa;
+        }
+
+        .reset-image-btn {
+            background: #444;
+            color: #fff;
+            padding: 8px 20px;
+            font-size: 0.85rem;
+            margin-top: 10px;
+        }
+
+        .reset-image-btn:hover {
+            background: #555;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>
+            <img src="https://images.squarespace-cdn.com/content/v1/6932793b139c197327cee93e/3be0b1ce-cddf-42f2-a436-b219834db383/FooterLogo.png" alt="Logo">
+            <span>Custom 4-Image Grid Tool</span>
+        </h1>
+
+        <div class="controls">
+            <div class="upload-section">
+                <div class="upload-box">
+                    <input type="file" id="upload1" accept="image/*">
+                    <label for="upload1">📷 Upload Image 1</label>
+                </div>
+                <div class="upload-box">
+                    <input type="file" id="upload2" accept="image/*">
+                    <label for="upload2">📷 Upload Image 2</label>
+                </div>
+                <div class="upload-box">
+                    <input type="file" id="upload3" accept="image/*">
+                    <label for="upload3">📷 Upload Image 3</label>
+                </div>
+                <div class="upload-box">
+                    <input type="file" id="upload4" accept="image/*">
+                    <label for="upload4">📷 Upload Image 4</label>
+                </div>
+            </div>
+
+            <div class="spacing-control">
+                <label for="spacing">Border Spacing:</label>
+                <input type="range" id="spacing" min="0" max="100" value="20" step="5">
+                <span class="spacing-value"><span id="spacingValue">20</span>px</span>
+            </div>
+        </div>
+
+        <div class="preview-section">
+            <h2>Preview (Drag to Reorder)</h2>
+            <div class="grid-preview" id="gridPreview">
+                <div class="grid-slot empty" data-position="1" draggable="false"></div>
+                <div class="grid-slot empty" data-position="2" draggable="false"></div>
+                <div class="grid-slot empty" data-position="3" draggable="false"></div>
+                <div class="grid-slot empty" data-position="4" draggable="false"></div>
+            </div>
+
+            <div id="imageControls" style="display: none; margin-top: 30px;">
+                <h3 style="margin-bottom: 15px;">Image Controls</h3>
+                <div id="controlsContainer"></div>
+            </div>
+        </div>
+
+        <div class="action-buttons">
+            <button id="downloadBtn" disabled>Download Grid</button>
+            <button id="resetBtn" class="secondary">Reset All</button>
+        </div>
+
+        <div class="instructions">
+            <h3>Instructions:</h3>
+            <ul>
+                <li>Upload 4 images using the upload buttons above</li>
+                <li>Drag and drop images in the preview to reorder them</li>
+                <li>Click and drag images within their frames to reposition</li>
+                <li>Use the controls below the preview to scale and fine-tune position</li>
+                <li>Adjust the border spacing with the slider</li>
+                <li>Click "Download Grid" to save your final image as PNG</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // State management
+        const state = {
+            images: [null, null, null, null],
+            spacing: 20,
+            transforms: [
+                { scale: 0.75, x: 0, y: 0 },
+                { scale: 0.75, x: 0, y: 0 },
+                { scale: 0.75, x: 0, y: 0 },
+                { scale: 0.75, x: 0, y: 0 }
+            ],
+            activeImageIndex: null
+        };
+
+        let draggedIndex = null;
+        let isDraggingImage = false;
+        let currentDragImage = null;
+        let dragStart = { x: 0, y: 0 };
+        let dragOffset = { x: 0, y: 0 };
+
+        // Elements
+        const uploadInputs = [
+            document.getElementById('upload1'),
+            document.getElementById('upload2'),
+            document.getElementById('upload3'),
+            document.getElementById('upload4')
+        ];
+        const gridSlots = document.querySelectorAll('.grid-slot');
+        const spacingSlider = document.getElementById('spacing');
+        const spacingValue = document.getElementById('spacingValue');
+        const gridPreview = document.getElementById('gridPreview');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const imageControls = document.getElementById('imageControls');
+        const controlsContainer = document.getElementById('controlsContainer');
+
+        // Upload handlers
+        uploadInputs.forEach((input, index) => {
+            input.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file && file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        const img = new Image();
+                        img.onload = () => {
+                            state.images[index] = img;
+                            
+                            // Calculate minimum scale to fill the slot (cover behavior)
+                            // The image needs to fill both width AND height, so we take the maximum
+                            const imgAspect = img.naturalWidth / img.naturalHeight;
+                            const slotAspect = 1; // square
+                            
+                            let minScale;
+                            if (imgAspect > slotAspect) {
+                                // Image is wider than slot - scale based on height to fill vertically
+                                minScale = 1;
+                            } else {
+                                // Image is taller than slot - scale based on width to fill horizontally  
+                                minScale = 1 / imgAspect;
+                            }
+                            
+                            // Set initial scale to fill the slot
+                            state.transforms[index].scale = minScale;
+                            state.transforms[index].x = 0;
+                            state.transforms[index].y = 0;
+                            
+                            updatePreview();
+                            checkDownloadReady();
+                        };
+                        img.src = event.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        });
+
+        // Spacing slider
+        spacingSlider.addEventListener('input', (e) => {
+            state.spacing = parseInt(e.target.value);
+            spacingValue.textContent = state.spacing;
+            gridPreview.style.setProperty('--spacing', `${state.spacing}px`);
+        });
+
+        // Initialize spacing
+        gridPreview.style.setProperty('--spacing', `${state.spacing}px`);
+
+        // Update preview
+        function updatePreview() {
+            gridSlots.forEach((slot, index) => {
+                slot.innerHTML = '';
+                
+                // Update active state
+                if (state.activeImageIndex === index) {
+                    slot.classList.add('active');
+                } else {
+                    slot.classList.remove('active');
+                }
+                
+                if (state.images[index]) {
+                    const img = document.createElement('img');
+                    img.src = state.images[index].src;
+                    img.dataset.index = index;
+                    slot.appendChild(img);
+                    slot.classList.remove('empty');
+                    slot.draggable = true;
+                    
+                    // Apply transformations
+                    applyTransform(img, index);
+                    
+                    // Add image drag listeners
+                    setupImageDrag(img, slot, index);
+                } else {
+                    slot.classList.add('empty');
+                    slot.draggable = false;
+                }
+            });
+            
+            updateControls();
+        }
+
+        // Apply transform to image
+        function applyTransform(img, index) {
+            const t = state.transforms[index];
+            img.style.transform = `translate(-50%, -50%) translate(${t.x}px, ${t.y}px) scale(${t.scale})`;
+        }
+
+        // Setup image dragging within slot
+        function setupImageDrag(img, slot, index) {
+            img.addEventListener('mousedown', (e) => {
+                // Prevent if we're dragging the slot itself
+                if (slot.draggable) {
+                    e.stopPropagation();
+                    isDraggingImage = true;
+                    currentDragImage = { img, slot, index };
+                    state.activeImageIndex = index;
+                    
+                    const rect = slot.getBoundingClientRect();
+                    dragStart = {
+                        x: e.clientX,
+                        y: e.clientY
+                    };
+                    dragOffset = {
+                        x: state.transforms[index].x,
+                        y: state.transforms[index].y
+                    };
+                    
+                    img.classList.add('dragging');
+                    updatePreview();
+                    e.preventDefault();
+                }
+            });
+        }
+
+        // Global mouse move for image dragging
+        document.addEventListener('mousemove', (e) => {
+            if (isDraggingImage && currentDragImage) {
+                const { img, slot, index } = currentDragImage;
+                const rect = slot.getBoundingClientRect();
+                
+                const dx = e.clientX - dragStart.x;
+                const dy = e.clientY - dragStart.y;
+                
+                let newX = dragOffset.x + dx;
+                let newY = dragOffset.y + dy;
+                
+                // Calculate boundaries based on scale
+                const scale = state.transforms[index].scale;
+                const slotWidth = rect.width;
+                const slotHeight = rect.height;
+                
+                // Calculate the actual rendered size of the image
+                const imgAspect = img.naturalWidth / img.naturalHeight;
+                const slotAspect = slotWidth / slotHeight;
+                
+                let renderedWidth, renderedHeight;
+                if (imgAspect > slotAspect) {
+                    renderedWidth = slotWidth;
+                    renderedHeight = slotWidth / imgAspect;
+                } else {
+                    renderedHeight = slotHeight;
+                    renderedWidth = slotHeight * imgAspect;
+                }
+                
+                // Apply scale to rendered dimensions
+                const scaledWidth = renderedWidth * scale;
+                const scaledHeight = renderedHeight * scale;
+                
+                // Max movement boundaries (image can't be dragged beyond its edges)
+                const maxX = Math.max(0, (scaledWidth - slotWidth) / 2);
+                const maxY = Math.max(0, (scaledHeight - slotHeight) / 2);
+                
+                newX = Math.max(-maxX, Math.min(maxX, newX));
+                newY = Math.max(-maxY, Math.min(maxY, newY));
+                
+                state.transforms[index].x = newX;
+                state.transforms[index].y = newY;
+                
+                applyTransform(img, index);
+                updateControlValues(index);
+            }
+        });
+
+        // Global mouse up
+        document.addEventListener('mouseup', () => {
+            if (isDraggingImage && currentDragImage) {
+                currentDragImage.img.classList.remove('dragging');
+                isDraggingImage = false;
+                currentDragImage = null;
+            }
+        });
+
+        // Create controls for each image
+        function updateControls() {
+            const hasImages = state.images.some(img => img !== null);
+            imageControls.style.display = hasImages ? 'block' : 'none';
+            
+            if (!hasImages) return;
+            
+            controlsContainer.innerHTML = '';
+            
+            state.images.forEach((img, index) => {
+                if (img) {
+                    const controlGroup = document.createElement('div');
+                    controlGroup.className = 'image-control-group';
+                    
+                    controlGroup.innerHTML = `
+                        <h4>Image ${index + 1}</h4>
+                        <div class="control-row">
+                            <label>Scale:</label>
+                            <input type="range" id="scale-${index}" min="0.5" max="3" step="0.1" value="${state.transforms[index].scale}">
+                            <span class="value-display"><span id="scale-value-${index}">${state.transforms[index].scale.toFixed(1)}</span>x</span>
+                        </div>
+                        <div class="control-row">
+                            <label>Position X:</label>
+                            <input type="range" id="x-${index}" min="-500" max="500" step="5" value="${state.transforms[index].x}">
+                            <span class="value-display"><span id="x-value-${index}">${Math.round(state.transforms[index].x)}</span>px</span>
+                        </div>
+                        <div class="control-row">
+                            <label>Position Y:</label>
+                            <input type="range" id="y-${index}" min="-500" max="500" step="5" value="${state.transforms[index].y}">
+                            <span class="value-display"><span id="y-value-${index}">${Math.round(state.transforms[index].y)}</span>px</span>
+                        </div>
+                        <button class="reset-image-btn" onclick="resetImageTransform(${index})">Reset Position & Scale</button>
+                    `;
+                    
+                    controlsContainer.appendChild(controlGroup);
+                    
+                    // Add listeners
+                    document.getElementById(`scale-${index}`).addEventListener('input', (e) => {
+                        state.activeImageIndex = index;
+                        state.transforms[index].scale = parseFloat(e.target.value);
+                        updateImageTransform(index);
+                        updateControlValues(index);
+                        updatePreview();
+                    });
+                    
+                    document.getElementById(`x-${index}`).addEventListener('input', (e) => {
+                        state.activeImageIndex = index;
+                        state.transforms[index].x = parseFloat(e.target.value);
+                        updateImageTransform(index);
+                        updateControlValues(index);
+                        updatePreview();
+                    });
+                    
+                    document.getElementById(`y-${index}`).addEventListener('input', (e) => {
+                        state.activeImageIndex = index;
+                        state.transforms[index].y = parseFloat(e.target.value);
+                        updateImageTransform(index);
+                        updateControlValues(index);
+                        updatePreview();
+                    });
+                    
+                    // Add focus listeners to highlight when interacting with controls
+                    [document.getElementById(`scale-${index}`), 
+                     document.getElementById(`x-${index}`), 
+                     document.getElementById(`y-${index}`)].forEach(control => {
+                        control.addEventListener('focus', () => {
+                            state.activeImageIndex = index;
+                            updatePreview();
+                        });
+                    });
+                }
+            });
+        }
+
+        // Update transform for a specific image
+        function updateImageTransform(index) {
+            const img = gridSlots[index].querySelector('img');
+            if (img) {
+                applyTransform(img, index);
+            }
+        }
+
+        // Update control display values
+        function updateControlValues(index) {
+            const scaleValue = document.getElementById(`scale-value-${index}`);
+            const xValue = document.getElementById(`x-value-${index}`);
+            const yValue = document.getElementById(`y-value-${index}`);
+            
+            if (scaleValue) scaleValue.textContent = state.transforms[index].scale.toFixed(1);
+            if (xValue) xValue.textContent = Math.round(state.transforms[index].x);
+            if (yValue) yValue.textContent = Math.round(state.transforms[index].y);
+        }
+
+        // Reset individual image transform
+        window.resetImageTransform = function(index) {
+            // Calculate minimum scale to fill
+            const img = state.images[index];
+            if (img) {
+                const imgAspect = img.naturalWidth / img.naturalHeight;
+                let minScale = imgAspect > 1 ? 1 : 1 / imgAspect;
+                state.transforms[index] = { scale: minScale, x: 0, y: 0 };
+            } else {
+                state.transforms[index] = { scale: 1, x: 0, y: 0 };
+            }
+            updateImageTransform(index);
+            updateControls();
+        };
+
+        // Drag and drop for slot reordering
+        gridSlots.forEach((slot, index) => {
+            slot.addEventListener('dragstart', (e) => {
+                if (state.images[index] && !isDraggingImage) {
+                    draggedIndex = index;
+                    slot.style.opacity = '0.5';
+                } else {
+                    e.preventDefault();
+                }
+            });
+
+            slot.addEventListener('dragend', (e) => {
+                slot.style.opacity = '1';
+            });
+
+            slot.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                if (draggedIndex !== null && draggedIndex !== index) {
+                    slot.classList.add('drag-over');
+                }
+            });
+
+            slot.addEventListener('dragleave', () => {
+                slot.classList.remove('drag-over');
+            });
+
+            slot.addEventListener('drop', (e) => {
+                e.preventDefault();
+                slot.classList.remove('drag-over');
+                
+                if (draggedIndex !== null && draggedIndex !== index) {
+                    // Swap images
+                    const temp = state.images[index];
+                    state.images[index] = state.images[draggedIndex];
+                    state.images[draggedIndex] = temp;
+                    updatePreview();
+                }
+                draggedIndex = null;
+            });
+        });
+
+        // Check if download should be enabled
+        function checkDownloadReady() {
+            const allImagesLoaded = state.images.every(img => img !== null);
+            downloadBtn.disabled = !allImagesLoaded;
+        }
+
+        // Download function
+        downloadBtn.addEventListener('click', () => {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Assuming images are 1080x1080, calculate canvas size
+            const imageSize = 1080;
+            const spacing = state.spacing;
+            const canvasSize = (imageSize * 2) + (spacing * 3);
+            
+            canvas.width = canvasSize;
+            canvas.height = canvasSize;
+            
+            // Clear canvas (transparent background)
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw images with transformations
+            const positions = [
+                { x: spacing, y: spacing }, // Top left
+                { x: spacing + imageSize + spacing, y: spacing }, // Top right
+                { x: spacing, y: spacing + imageSize + spacing }, // Bottom left
+                { x: spacing + imageSize + spacing, y: spacing + imageSize + spacing } // Bottom right
+            ];
+            
+            state.images.forEach((img, index) => {
+                if (img) {
+                    const pos = positions[index];
+                    const transform = state.transforms[index];
+                    
+                    // Save context state
+                    ctx.save();
+                    
+                    // Create clipping region for this slot
+                    ctx.beginPath();
+                    ctx.rect(pos.x, pos.y, imageSize, imageSize);
+                    ctx.clip();
+                    
+                    // Calculate how the image would be rendered with object-fit: contain
+                    const imgAspect = img.naturalWidth / img.naturalHeight;
+                    const slotAspect = 1; // square slot
+                    
+                    let drawWidth, drawHeight;
+                    if (imgAspect > slotAspect) {
+                        drawWidth = imageSize;
+                        drawHeight = imageSize / imgAspect;
+                    } else {
+                        drawHeight = imageSize;
+                        drawWidth = imageSize * imgAspect;
+                    }
+                    
+                    // Apply scale
+                    drawWidth *= transform.scale;
+                    drawHeight *= transform.scale;
+                    
+                    // Calculate center position in slot
+                    const centerX = pos.x + imageSize / 2;
+                    const centerY = pos.y + imageSize / 2;
+                    
+                    // Apply position offset and draw centered
+                    const finalX = centerX + transform.x - drawWidth / 2;
+                    const finalY = centerY + transform.y - drawHeight / 2;
+                    
+                    ctx.drawImage(img, finalX, finalY, drawWidth, drawHeight);
+                    
+                    // Restore context state
+                    ctx.restore();
+                }
+            });
+            
+            // Download
+            canvas.toBlob((blob) => {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `image-grid-${Date.now()}.png`;
+                a.click();
+                URL.revokeObjectURL(url);
+            }, 'image/png');
+        });
+
+        // Reset function
+        resetBtn.addEventListener('click', () => {
+            if (confirm('Are you sure you want to reset all images?')) {
+                state.images = [null, null, null, null];
+                state.transforms = [
+                    { scale: 1, x: 0, y: 0 },
+                    { scale: 1, x: 0, y: 0 },
+                    { scale: 1, x: 0, y: 0 },
+                    { scale: 1, x: 0, y: 0 }
+                ];
+                state.activeImageIndex = null;
+                uploadInputs.forEach(input => input.value = '');
+                updatePreview();
+                checkDownloadReady();
+            }
+        });
+    </script>
+</body>
+</html>
