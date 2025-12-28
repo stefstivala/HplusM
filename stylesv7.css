@@ -312,3 +312,19 @@ body.homepage .accordion-icon-container .plus__vertical-line {
     line-height: 1.1 !important;
   }
 }
+
+/*new stuff we will cleaqn up later*/
+
+/* Current Vacancies Button - Black with white text */
+a[href="/careers"].sqs-block-button-element {
+  background-color: #000 !important;
+  color: #fff !important;
+  border: none !important;
+  transition: opacity 0.3s ease;
+}
+
+a[href="/careers"].sqs-block-button-element:hover {
+  opacity: 0.85;
+  background-color: #000 !important;
+  color: #fff !important;
+}
