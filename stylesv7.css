@@ -357,3 +357,25 @@ a[href="/current-vacancies"].sqs-block-button-element:hover {
   background-color: #000 !important;
   color: #fff !important;
 }
+
+/* All Buttons - Black with white text */
+.sqs-block-button-element,
+.sqs-button-element--primary,
+.sqs-button-element--secondary,
+.sqs-block-button-element--medium,
+.sqs-block-button-element--large {
+  background-color: #000 !important;
+  color: #fff !important;
+  border: none !important;
+  transition: opacity 0.3s ease !important;
+}
+
+.sqs-block-button-element:hover,
+.sqs-button-element--primary:hover,
+.sqs-button-element--secondary:hover,
+.sqs-block-button-element--medium:hover,
+.sqs-block-button-element--large:hover {
+  opacity: 0.85 !important;
+  background-color: #000 !important;
+  color: #fff !important;
+}
